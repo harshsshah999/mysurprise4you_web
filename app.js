@@ -44,3 +44,12 @@ app.get('/test-env', (req, res) => {
       DB_NAME: ${process.env.DB_NAME}
     `);
   });
+
+  app.get('/test-db', async (req, res) => {
+    try {
+      await sequelize.authenticate();
+      res.send('Database connection successful! 🎉');
+    } catch (err) {
+      res.send('Database connection failed: ' + err.message);
+    }
+  });
