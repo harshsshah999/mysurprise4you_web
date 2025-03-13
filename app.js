@@ -36,3 +36,11 @@ app.get('/', async (req, res) => {
 app.listen(process.env.PORT, () => {
   console.log(`Server running on http://localhost:${process.env.PORT}`);
 });
+
+app.get('/test-env', (req, res) => {
+    res.send(`
+      DB_HOST: ${process.env.DB_HOST}<br>
+      DB_USER: ${process.env.DB_USER}<br>
+      DB_NAME: ${process.env.DB_NAME}
+    `);
+  });
