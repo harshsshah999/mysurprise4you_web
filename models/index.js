@@ -1,10 +1,7 @@
 const { Sequelize } = require('sequelize');
 const path = require('path');
-
-// Load environment variables
 require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 
-// Initialize Sequelize
 const sequelize = new Sequelize(
   process.env.DB_NAME,
   process.env.DB_USER,
@@ -13,10 +10,36 @@ const sequelize = new Sequelize(
   dialect: 'mysql'
 });
 
-// Test the connection
+// Model definitions
+const defineUser = require('./User');
+const defineTemplate = require('./Template');
+const defineInstance = require('./Instance');
+const defineBooking = require('./Booking');
+
+// Initialize models
+const User = defineUser(sequelize);
+const Template = defineTemplate(sequelize);
+const Instance = defineInstance(sequelize);
+const Booking = defineBooking(sequelize);
+
+// Explicit associations
+User.hasMany(Instance, { foreignKey: 'UserId' });
+Instance.belongsTo(User, { foreignKey: 'UserId' });
+
+Template.hasMany(Instance, { foreignKey: 'TemplateId' });
+Instance.belongsTo(Template, { foreignKey: 'TemplateId' });
+
+// Test connection
 sequelize.authenticate()
   .then(() => console.log('Connected to MySQL!'))
-  .catch(err => console.error('Failed to connect to MySQL:', err));
+  .catch(err => console.error('Connection failed:', err));
 
-// Export Sequelize instance
-module.exports = sequelize;
+sequelize.sync();
+
+module.exports = {
+  sequelize,
+  User,
+  Template,
+  Instance,
+  Booking
+};
