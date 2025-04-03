@@ -1,22 +1,51 @@
 const { Sequelize } = require('sequelize');
+const { sequelize } = require('../config/database');
 const path = require('path');
 
 // Load environment variables
 require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 
-// Initialize Sequelize
-const sequelize = new Sequelize(
-  process.env.DB_NAME,
-  process.env.DB_USER,
-  process.env.DB_PASSWORD, {
-  host: process.env.DB_HOST,
-  dialect: 'mysql'
+// Import models
+const User = require('./User');
+const Booking = require('./Booking');
+const Slide = require('./Slide');
+
+// Define associations with cascade options
+User.hasMany(Booking, {
+  foreignKey: {
+    name: 'userId',
+    allowNull: false
+  },
+  onDelete: 'CASCADE',
+  onUpdate: 'CASCADE'
 });
 
-// Test the connection
-sequelize.authenticate()
-  .then(() => console.log('Connected to MySQL!'))
-  .catch(err => console.error('Failed to connect to MySQL:', err));
+Booking.belongsTo(User, {
+  foreignKey: {
+    name: 'userId',
+    allowNull: false
+  }
+});
 
-// Export Sequelize instance
-module.exports = sequelize;
+Booking.hasMany(Slide, {
+  foreignKey: {
+    name: 'bookingId',
+    allowNull: true
+  },
+  onDelete: 'CASCADE',
+  onUpdate: 'CASCADE'
+});
+
+Slide.belongsTo(Booking, {
+  foreignKey: {
+    name: 'bookingId',
+    allowNull: true
+  }
+});
+
+module.exports = {
+  sequelize,
+  User,
+  Booking,
+  Slide
+};
