@@ -55,13 +55,15 @@ router.post('/login', (req, res, next) => {
       return res.status(500).json({ message: 'Login failed', error: err.message });
     }
     if (!user) {
+      console.log('Login failed - invalid credentials');
       return res.status(401).json({ message: info.message || 'Invalid credentials' });
     }
     req.logIn(user, (err) => {
       if (err) {
-        console.error('Login error:', err);
+        console.error('Login error during session creation:', err);
         return res.status(500).json({ message: 'Login failed', error: err.message });
       }
+      console.log('Login successful, session created for user:', user.email);
       const { password, ...userData } = user.get({ plain: true });
       return res.json(userData);
     });
@@ -73,7 +75,9 @@ router.post('/logout', (req, res) => {
 });
 
 router.get('/user', (req, res) => {
-  if (!req.isAuthenticated()) return res.status(401).json({ message: 'Unauthorized' });
+  if (!req.isAuthenticated()) {
+    return res.status(401).json({ message: 'Unauthorized' });
+  }
   const { password, ...userData } = req.user.get({ plain: true });
   res.json(userData);
 });
