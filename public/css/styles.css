@@ -48,3 +48,80 @@ body {
 .flatpickr-calendar {
     z-index: 1050;
 }
+
+/* Template Selector Styles */
+.template-option {
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.template-option:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.template-option.selected {
+    border-color: var(--bs-primary);
+    background-color: rgba(var(--bs-primary-rgb), 0.05);
+}
+
+/* Template-specific styles */
+.template-immersive .slide-content {
+    min-height: 100vh;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    padding: 2rem;
+}
+
+.template-immersive .slide-content::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.7), rgba(0,0,0,0.3));
+    z-index: 1;
+}
+
+.template-immersive .slide-content h3,
+.template-immersive .slide-content p {
+    position: relative;
+    z-index: 2;
+    color: white;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+}
+
+.template-split .slide-content {
+    display: flex;
+    flex-direction: row;
+    min-height: 100vh;
+}
+
+.template-split .slide-content .text-content {
+    flex: 1;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.template-split .slide-content .image-content {
+    flex: 1;
+    background-size: cover;
+    background-position: center;
+}
+
+@media (max-width: 768px) {
+    .template-split .slide-content {
+        flex-direction: column;
+    }
+    
+    .template-split .slide-content .image-content {
+        min-height: 50vh;
+    }
+}

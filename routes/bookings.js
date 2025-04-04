@@ -9,8 +9,8 @@ const auth = require('../middleware/auth');
 router.get('/', auth, async (req, res) => {
     try {
         const bookings = await Booking.findAll({
-            where: { userId: req.user.id },
-            order: [['startDate', 'ASC']],
+            where: { user_id: req.user.id },
+            order: [['start_date', 'ASC']],
             include: [{ model: User, attributes: ['email'] }]
         });
         res.json(bookings);
@@ -34,12 +34,12 @@ router.post('/', auth, async (req, res) => {
             where: {
                 [Op.or]: [
                     {
-                        startDate: {
+                        start_date: {
                             [Op.between]: [startDate, endDate]
                         }
                     },
                     {
-                        endDate: {
+                        end_date: {
                             [Op.between]: [startDate, endDate]
                         }
                     }
@@ -51,19 +51,24 @@ router.post('/', auth, async (req, res) => {
             return res.status(409).json({ message: 'This time slot is already booked' });
         }
 
+        // Create the booking with the authenticated user's ID
         const booking = await Booking.create({
-            startDate,
-            endDate,
-            recipientName,
-            hirerName,
-            userId: req.user.id,
-            status: 'pending'
+            start_date: startDate,
+            end_date: endDate,
+            recipient_name: recipientName,
+            hirer_name: hirerName || req.user.email,
+            user_id: req.user.id,
+            status: 'pending',
+            template_type: 'immersive' // Default template
         });
 
         res.status(201).json(booking);
     } catch (error) {
         console.error('Error creating booking:', error);
-        res.status(500).json({ message: 'Failed to create booking' });
+        res.status(500).json({ 
+            message: 'Failed to create booking',
+            error: error.message 
+        });
     }
 });
 
@@ -73,7 +78,7 @@ router.delete('/:id', auth, async (req, res) => {
         const booking = await Booking.findOne({
             where: {
                 id: req.params.id,
-                userId: req.user.id
+                user_id: req.user.id
             }
         });
 

@@ -13,7 +13,7 @@ const Slide = require('./Slide');
 // Define associations with cascade options
 User.hasMany(Booking, {
   foreignKey: {
-    name: 'userId',
+    name: 'user_id',
     allowNull: false
   },
   onDelete: 'CASCADE',
@@ -22,14 +22,14 @@ User.hasMany(Booking, {
 
 Booking.belongsTo(User, {
   foreignKey: {
-    name: 'userId',
+    name: 'user_id',
     allowNull: false
   }
 });
 
 Booking.hasMany(Slide, {
   foreignKey: {
-    name: 'bookingId',
+    name: 'booking_id',
     allowNull: true
   },
   onDelete: 'CASCADE',
@@ -38,7 +38,7 @@ Booking.hasMany(Slide, {
 
 Slide.belongsTo(Booking, {
   foreignKey: {
-    name: 'bookingId',
+    name: 'booking_id',
     allowNull: true
   }
 });

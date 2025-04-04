@@ -5,6 +5,7 @@ const path = require('path');
 const fs = require('fs');
 const { Slide, Booking } = require('../models');
 const { Op } = require('sequelize');
+const auth = require('../middleware/auth');
 
 // Ensure uploads directory exists
 const uploadsDir = path.join(__dirname, '../public/uploads/slides');
@@ -38,6 +39,51 @@ const upload = multer({
   }
 });
 
+// Get all slides for a booking
+router.get('/', auth, async (req, res) => {
+  try {
+    const { bookingId } = req.query;
+    console.log('Fetching slides for booking:', bookingId);
+    
+    if (!bookingId) {
+      console.error('No bookingId provided');
+      return res.status(400).json({ message: 'Booking ID is required' });
+    }
+
+    // Verify booking exists and belongs to user
+    const booking = await Booking.findOne({
+      where: {
+        id: bookingId,
+        user_id: req.user.id
+      }
+    });
+
+    if (!booking) {
+      console.error('Booking not found or unauthorized:', bookingId);
+      return res.status(404).json({ message: 'Booking not found' });
+    }
+
+    console.log('Found booking:', booking.toJSON());
+
+    const slides = await Slide.findAll({
+      where: { 
+        booking_id: bookingId,
+        deleted_at: null
+      },
+      order: [['order', 'ASC']]
+    });
+    
+    console.log('Found slides:', slides.length);
+    res.json(slides);
+  } catch (err) {
+    console.error('Error fetching slides:', err);
+    res.status(500).json({ 
+      message: 'Failed to fetch slides',
+      error: err.message 
+    });
+  }
+});
+
 // Get all active slides for homepage
 router.get('/active', async (req, res) => {
   try {
@@ -47,11 +93,11 @@ router.get('/active', async (req, res) => {
     // Find the active booking that includes the current time
     const activeBooking = await Booking.findOne({
       where: {
-        startDate: { [Op.lte]: now },
-        endDate: { [Op.gte]: now },
+        start_date: { [Op.lte]: now },
+        end_date: { [Op.gte]: now },
         status: 'pending' // Include pending bookings as they should be visible
       },
-      order: [['startDate', 'DESC']] // Get the most recent booking if multiple exist
+      order: [['start_date', 'DESC']] // Get the most recent booking if multiple exist
     });
 
     console.log('Active booking:', activeBooking ? activeBooking.toJSON() : null);
@@ -60,194 +106,142 @@ router.get('/active', async (req, res) => {
     if (activeBooking) {
       // Get slides for active booking
       slides = await Slide.findAll({
-        where: { bookingId: activeBooking.id },
+        where: { 
+          booking_id: activeBooking.id,
+          deleted_at: null
+        },
         order: [['order', 'ASC']]
       });
       console.log('Found booking slides:', slides.length);
     } else {
-      // Get default slides
-      slides = await Slide.findAll({
-        where: { 
-          isActive: true,
-          bookingId: null
+      // Return default slides with images
+      slides = [
+        {
+          id: 1,
+          title: 'Welcome to MySurprise4You',
+          description: 'Create unforgettable moments with personalized digital surprises',
+          background_type: 'image',
+          background_value: '/images/default/welcome-bg.jpg',
+          order: 1,
+          is_active: true,
+          created_at: new Date(),
+          updated_at: new Date()
         },
-        order: [['createdAt', 'ASC']]
-      });
-      console.log('Found default slides:', slides.length);
-    }
-
-    // If no slides found, create a default slide
-    if (!slides || slides.length === 0) {
-      slides = [{
-        title: 'Welcome to MySurprise4You',
-        description: 'Book a time slot to create your personalized surprise!',
-        backgroundType: 'gradient',
-        backgroundValue: 'linear-gradient(135deg, #FEADA6, #F5EFEF)',
-        isActive: true
-      }];
+        {
+          id: 2,
+          title: 'Make Someone\'s Day Special',
+          description: 'Design beautiful digital experiences for birthdays, anniversaries, and more',
+          background_type: 'image',
+          background_value: '/images/default/special-bg.jpg',
+          order: 2,
+          is_active: true,
+          created_at: new Date(),
+          updated_at: new Date()
+        },
+        {
+          id: 3,
+          title: 'Easy to Create, Amazing to Experience',
+          description: 'Our intuitive editor makes it simple to create stunning digital surprises',
+          background_type: 'image',
+          background_value: '/images/default/experience-bg.jpg',
+          order: 3,
+          is_active: true,
+          created_at: new Date(),
+          updated_at: new Date()
+        }
+      ];
+      console.log('Using default slides:', slides.length);
     }
 
     res.json(slides);
   } catch (err) {
     console.error('Error fetching active slides:', err);
-    res.status(500).json({ message: 'Failed to fetch slides' });
-  }
-});
-
-// Get all slides for a booking
-router.get('/', async (req, res) => {
-  try {
-    const { bookingId } = req.query;
-    
-    if (!bookingId) {
-      return res.status(400).json({ message: 'Booking ID is required' });
-    }
-
-    // Verify booking exists and belongs to user
-    const booking = await Booking.findByPk(bookingId);
-    if (!booking) {
-      return res.status(404).json({ message: 'Booking not found' });
-    }
-
-    const slides = await Slide.findAll({
-      where: { bookingId },
-      order: [['order', 'ASC']]
-    });
-    
-    res.json(slides);
-  } catch (err) {
-    console.error('Error fetching slides:', err);
-    res.status(500).json({ message: 'Failed to fetch slides' });
-  }
-});
-
-// Create a new slide with image upload
-router.post('/', upload.single('image'), async (req, res) => {
-  try {
-    console.log('Received slide creation request:', {
-      body: req.body,
-      file: req.file,
-      headers: req.headers
-    });
-
-    const slideData = { 
-      ...req.body,
-      order: parseInt(req.body.order) || 0
-    };
-    
-    // Validate required fields
-    if (!slideData.title || !slideData.backgroundType) {
-      return res.status(400).json({ 
-        message: 'Missing required fields',
-        required: ['title', 'backgroundType']
-      });
-    }
-    
-    // Handle image background type
-    if (slideData.backgroundType === 'image') {
-      if (req.file) {
-        // New image uploaded
-        slideData.backgroundValue = `/uploads/slides/${req.file.filename}`;
-      } else if (slideData.backgroundValue) {
-        // Using existing image path
-        // Validate that the image path exists
-        const imagePath = path.join(__dirname, '../public', slideData.backgroundValue);
-        if (!fs.existsSync(imagePath)) {
-          console.error('Invalid image path:', imagePath);
-          return res.status(400).json({ 
-            message: 'Invalid image path provided',
-            path: slideData.backgroundValue
-          });
-        }
-      } else {
-        return res.status(400).json({ 
-          message: 'Image file or existing image path is required for image background type' 
-        });
-      }
-    } else if (!slideData.backgroundValue) {
-      // Ensure backgroundValue is set for non-image types
-      return res.status(400).json({ 
-        message: 'Background value is required for non-image background types' 
-      });
-    }
-    
-    console.log('Creating slide with data:', slideData);
-    const slide = await Slide.create(slideData);
-    console.log('Slide created successfully:', slide);
-    
-    res.status(201).json(slide);
-  } catch (err) {
-    console.error('Error creating slide:', err);
     res.status(500).json({ 
-      message: 'Failed to create slide', 
-      error: err.message,
-      stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
+      message: 'Failed to fetch slides',
+      error: err.message 
     });
   }
 });
 
-// Update a slide with image upload
-router.put('/:id', upload.single('image'), async (req, res) => {
-  try {
-    console.log('Received slide update request:', {
-      id: req.params.id,
-      body: req.body,
-      file: req.file
-    });
-
-    const slideData = { ...req.body };
-    
-    // Get the existing slide
-    const existingSlide = await Slide.findByPk(req.params.id);
-    if (!existingSlide) {
-      return res.status(404).json({ message: 'Slide not found' });
-    }
-
-    // Handle image updates
-    if (req.file) {
-      // New image uploaded
-      slideData.backgroundType = 'image';
-      slideData.backgroundValue = `/uploads/slides/${req.file.filename}`;
-      
-      // Delete old image if it exists
-      if (existingSlide.backgroundType === 'image' && existingSlide.backgroundValue) {
-        const oldImagePath = path.join(__dirname, '../public', existingSlide.backgroundValue);
-        if (fs.existsSync(oldImagePath)) {
-          fs.unlinkSync(oldImagePath);
+// Create or update a slide
+router.post('/', auth, upload.single('image'), async (req, res) => {
+    try {
+        const { bookingId, title, description, backgroundType, backgroundValue, order, id } = req.body;
+        
+        // Validate required fields
+        if (!bookingId || !title || !backgroundType) {
+            return res.status(400).json({ message: 'Missing required fields' });
         }
-      }
-    } else if (slideData.backgroundType === 'image' && slideData.backgroundValue) {
-      // Using existing image path
-      const imagePath = path.join(__dirname, '../public', slideData.backgroundValue);
-      if (!fs.existsSync(imagePath)) {
-        console.error('Invalid image path:', imagePath);
-        return res.status(400).json({ 
-          message: 'Invalid image path provided',
-          path: slideData.backgroundValue
+
+        // Verify booking exists and belongs to user
+        const booking = await Booking.findOne({
+            where: {
+                id: bookingId,
+                user_id: req.user.id
+            }
         });
-      }
-    }
-    
-    // Update the slide
-    const [updated] = await Slide.update(slideData, {
-      where: { id: req.params.id }
-    });
 
-    if (!updated) {
-      return res.status(404).json({ message: 'Slide not found' });
-    }
+        if (!booking) {
+            return res.status(404).json({ message: 'Booking not found' });
+        }
 
-    // Get the updated slide
-    const updatedSlide = await Slide.findByPk(req.params.id);
-    res.json(updatedSlide);
-  } catch (err) {
-    console.error('Error updating slide:', err);
-    res.status(500).json({ 
-      message: 'Failed to update slide', 
-      error: err.message,
-      stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
-    });
-  }
+        let finalBackgroundValue = backgroundValue;
+
+        // Handle image upload
+        if (backgroundType === 'image' && req.file) {
+            finalBackgroundValue = `/uploads/slides/${req.file.filename}`;
+        } else if (backgroundType === 'image' && !backgroundValue && !req.file) {
+            return res.status(400).json({ message: 'Image is required for image background type' });
+        }
+
+        // Create or update slide
+        let slide;
+        if (id) {
+            // Update existing slide
+            slide = await Slide.findOne({
+                where: {
+                    id: id,
+                    booking_id: bookingId
+                }
+            });
+
+            if (!slide) {
+                return res.status(404).json({ message: 'Slide not found' });
+            }
+
+            // If changing background type or uploading new image, delete old image
+            if (slide.background_type === 'image' && 
+                (backgroundType !== 'image' || (req.file && slide.background_value !== finalBackgroundValue))) {
+                const oldImagePath = path.join(__dirname, '../public', slide.background_value);
+                if (fs.existsSync(oldImagePath)) {
+                    fs.unlinkSync(oldImagePath);
+                }
+            }
+
+            await slide.update({
+                title,
+                description,
+                background_type: backgroundType,
+                background_value: finalBackgroundValue,
+                order: order || 0
+            });
+        } else {
+            // Create new slide
+            slide = await Slide.create({
+                booking_id: bookingId,
+                title,
+                description,
+                background_type: backgroundType,
+                background_value: finalBackgroundValue,
+                order: order || 0
+            });
+        }
+
+        res.json(slide);
+    } catch (err) {
+        console.error('Error creating/updating slide:', err);
+        res.status(500).json({ message: 'Failed to save slide', error: err.message });
+    }
 });
 
 // Delete all slides for a booking
@@ -257,13 +251,13 @@ router.delete('/booking/:bookingId', async (req, res) => {
         
         // First get all slides to delete their images
         const slides = await Slide.findAll({
-            where: { bookingId }
+            where: { booking_id: bookingId }
         });
 
         // Delete image files if they exist
         for (const slide of slides) {
-            if (slide.backgroundType === 'image' && slide.backgroundValue) {
-                const imagePath = path.join(__dirname, '../public', slide.backgroundValue);
+            if (slide.background_type === 'image' && slide.background_value) {
+                const imagePath = path.join(__dirname, '../public', slide.background_value);
                 if (fs.existsSync(imagePath)) {
                     fs.unlinkSync(imagePath);
                 }
@@ -272,7 +266,7 @@ router.delete('/booking/:bookingId', async (req, res) => {
         
         // Then delete all slides from database
         await Slide.destroy({
-            where: { bookingId }
+            where: { booking_id: bookingId }
         });
         
         res.json({ message: 'All slides deleted successfully' });

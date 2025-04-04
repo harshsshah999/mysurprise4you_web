@@ -70,15 +70,28 @@ passport.deserializeUser(async (id, done) => {
 app.use(passport.initialize());
 app.use(passport.session());
 
+// Serve static files
+app.use(express.static('public'));
+app.use(express.static('views'));
+
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/slides', slideRoutes);
-app.use(express.static('public')); // Serve static files
 
-// Root Route
+// Root Route - serve index.html
 app.get('/', (req, res) => {
-  res.send('Welcome to MySurprise4You!');
+  res.sendFile('index.html', { root: 'views' });
+});
+
+// Auth page route
+app.get('/auth', (req, res) => {
+  res.sendFile('auth.html', { root: 'public' });
+});
+
+// Dashboard page route
+app.get('/dashboard', (req, res) => {
+  res.sendFile('dashboard.html', { root: 'public' });
 });
 
 const PORT = process.env.PORT || 3000;

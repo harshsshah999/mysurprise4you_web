@@ -4,25 +4,28 @@ const bcrypt = require('bcryptjs');
 const { sequelize } = require('../config/database');
 
 const User = sequelize.define('User', {
+  id: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true
+  },
   email: {
     type: DataTypes.STRING,
-    unique: true,
     allowNull: false,
-    validate: {
-      isEmail: true
-    }
+    unique: true
   },
   password: {
     type: DataTypes.STRING,
-    allowNull: false,
-    set(value) {
-      if (value.length < 8) {
-        throw new Error('Password must be at least 8 characters');
-      }
-      const hash = bcrypt.hashSync(value, 10);
-      this.setDataValue('password', hash);
-    }
+    allowNull: false
   }
+}, {
+  tableName: 'users',
+  underscored: true,
+  paranoid: true,
+  timestamps: true,
+  createdAt: 'created_at',
+  updatedAt: 'updated_at',
+  deletedAt: 'deleted_at'
 });
 
 User.prototype.validPassword = function(password) {

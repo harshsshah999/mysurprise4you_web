@@ -73,6 +73,43 @@
                 <h3 class="card-title mb-4">Edit Slides</h3>
                 <div id="selectedBookingInfo" class="alert alert-info"></div>
                 
+                <!-- Template Selector -->
+                <div class="template-selector mb-4">
+                    <h5 class="mb-3">Choose Template Style</h5>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="template-option card h-100" data-template="immersive">
+                                <div class="card-body">
+                                    <div class="template-preview mb-3" style="height: 150px; background: linear-gradient(135deg, #FEADA6, #F5EFEF); position: relative;">
+                                        <div class="position-absolute bottom-0 start-0 p-3 text-white" style="background: rgba(0,0,0,0.5); width: 100%;">
+                                            <h6 class="mb-0">Immersive Fullscreen</h6>
+                                            <small>Full-screen images with overlaid text</small>
+                                        </div>
+                                    </div>
+                                    <p class="card-text small">Perfect for emotional, cinematic presentations with full-screen images and overlaid text.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="template-option card h-100" data-template="split">
+                                <div class="template-preview mb-3" style="height: 150px; background: #f8f9fa; position: relative;">
+                                    <div class="row h-100">
+                                        <div class="col-6 p-3">
+                                            <h6>Title</h6>
+                                            <p class="small mb-0">Description text here</p>
+                                        </div>
+                                        <div class="col-6" style="background: linear-gradient(135deg, #A1C4FD, #C2E9FB);"></div>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <h6 class="card-title">Split View</h6>
+                                    <p class="card-text small">Structured layout with text and image side by side (or stacked on mobile).</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div id="slidesContainer">
                     <!-- Slides will be added here -->
                 </div>
