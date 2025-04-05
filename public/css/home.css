@@ -49,11 +49,11 @@ body {
 }
 
 .nav-btn:last-child {
-    background: #007bff;
+    background-color: #007bff;
 }
 
 .nav-btn:hover {
-    background: #0056b3;
+    background-color: #0056b3;
 }
 
 /* Mobile Menu Button */
@@ -67,7 +67,7 @@ body {
     padding: 0.5rem;
 }
 
-/* Slides container */
+/* Slides Container */
 .slides-container {
     position: relative;
     width: 100%;
@@ -75,7 +75,7 @@ body {
     overflow: hidden;
 }
 
-/* Slide styles */
+/* Base Slide Styles */
 .slide {
     position: absolute;
     top: 0;
@@ -83,19 +83,21 @@ body {
     width: 100%;
     height: 100%;
     opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.8s ease-in-out, visibility 0.8s ease-in-out;
+    transition: opacity 0.5s ease-in-out;
     background-size: cover;
     background-position: center;
-    background-repeat: no-repeat;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .slide.active {
     opacity: 1;
-    visibility: visible;
+    z-index: 1;
 }
 
-.slide-content {
+/* Immersive Template Styles */
+.immersive-template .slide-content {
     position: absolute;
     bottom: 10%;
     left: 5%;
@@ -109,22 +111,22 @@ body {
     backdrop-filter: blur(10px);
 }
 
-.slide-title {
+.immersive-template .slide-title {
     font-size: 2.5rem;
     margin-bottom: 1rem;
     color: #fff;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
 }
 
-.slide-description {
+.immersive-template .slide-description {
     font-size: 1.2rem;
     line-height: 1.6;
     color: #fff;
+    margin-bottom: 2rem;
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
-    margin-bottom: 1rem;
 }
 
-.slide-link {
+.immersive-template .slide-link {
     display: inline-block;
     font-size: 0.9rem;
     color: #fff;
@@ -134,36 +136,112 @@ body {
     transition: all 0.3s ease;
     padding: 0.3rem 0;
     opacity: 0.9;
+    background-color: transparent;
+    font-weight: normal;
+    text-transform: none;
+    letter-spacing: normal;
+    border-radius: 0;
+    box-shadow: none;
+}
+
+.immersive-template .slide-link:hover {
+    color: #fff;
+    opacity: 1;
+    transform: translateY(-1px);
+    background-color: transparent;
+    box-shadow: none;
+}
+
+/* Split Template Styles */
+.split-template .slide {
+    background: none;
+}
+
+.split-template .slide-content {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+    z-index: 2;
+}
+
+.split-template .split-content {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 1rem;
+    padding: 2rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.split-template .split-text {
+    flex: 1;
+    padding-right: 2rem;
+}
+
+.split-template .split-image {
+    flex: 1;
+    height: 400px;
+    background-size: cover;
+    background-position: center;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.split-template .slide-title {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    color: #333;
+}
+
+.split-template .slide-description {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: #666;
+    margin-bottom: 1.5rem;
+}
+
+.split-template .slide-link {
+    display: inline-block;
+    padding: 0.8rem 1.5rem;
+    background-color: #007bff;
+    color: white;
+    text-decoration: none;
+    border-radius: 0.5rem;
+    transition: background-color 0.3s ease;
+}
+
+.split-template .slide-link:hover {
+    background-color: #0056b3;
+}
+
+/* Common Slide Link Styles */
+.slide-link {
+    display: inline-block;
+    padding: 0.8rem 1.5rem;
+    background-color: #007bff;
+    color: white;
+    text-decoration: none;
+    border-radius: 0.5rem;
+    transition: all 0.3s ease;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
 .slide-link:hover {
-    color: #007bff;
-    opacity: 1;
-    transform: translateY(-1px);
-}
-
-.cta-button {
-    display: inline-block;
-    padding: 0.6rem 1.2rem;
-    background: #007bff;
-    color: #fff;
-    text-decoration: none;
-    border-radius: 5px;
-    font-size: 1rem;
-    transition: all 0.3s ease;
-}
-
-.cta-button:hover {
-    background: #0056b3;
+    background-color: #0056b3;
     transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-/* Controls */
+/* Slide Controls */
 .slide-controls {
     position: fixed;
     bottom: 2rem;
-    right: 5%;
-    transform: none;
+    left: 50%;
+    transform: translateX(-50%);
     display: flex;
     gap: 1rem;
     z-index: 100;
@@ -173,21 +251,21 @@ body {
     background: rgba(255, 255, 255, 0.2);
     border: none;
     color: white;
-    width: 50px;
-    height: 50px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background-color 0.3s;
+    transition: all 0.3s ease;
 }
 
 .control-btn:hover {
-    background: rgba(255, 255, 255, 0.4);
+    background: rgba(255, 255, 255, 0.3);
 }
 
-/* Indicators */
+/* Slide Indicators */
 .slide-indicators {
     position: fixed;
     bottom: 1rem;
@@ -202,41 +280,42 @@ body {
     width: 10px;
     height: 10px;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.5);
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: all 0.3s ease;
 }
 
 .indicator.active {
-    background: rgba(255, 255, 255, 0.8);
+    background: white;
+    transform: scale(1.2);
 }
 
-/* Responsive Design */
+/* Responsive Styles */
 @media (max-width: 768px) {
     .top-nav {
         padding: 1rem;
     }
 
     .nav-links {
-        display: none;
-        position: absolute;
-        top: 100%;
-        left: 0;
-        right: 0;
+        position: fixed;
+        top: 0;
+        right: -100%;
+        height: 100vh;
+        width: 70%;
         background: rgba(0, 0, 0, 0.9);
         flex-direction: column;
-        padding: 1rem;
-        gap: 0.5rem;
+        padding: 2rem;
+        transition: right 0.3s ease;
     }
 
     .nav-links.active {
-        display: flex;
+        right: 0;
     }
 
     .nav-btn {
         width: 100%;
         text-align: center;
-        padding: 0.8rem;
+        padding: 1rem;
     }
 
     .menu-btn {
@@ -247,75 +326,91 @@ body {
         font-size: 1.2rem;
     }
 
-    .slide-content {
-        width: 90%;
-        left: 5%;
+    /* Immersive Template Responsive */
+    .immersive-template .slide-content {
         bottom: 20%;
+        left: 5%;
+        width: 90%;
         padding: 1.5rem;
     }
 
-    .slide-title {
+    .immersive-template .slide-title {
         font-size: 2rem;
     }
 
-    .slide-description {
+    .immersive-template .slide-description {
         font-size: 1rem;
     }
 
-    .slide-controls {
-        bottom: 1rem;
-        left: 5%;
-        right: auto;
-    }
-
-    .control-btn {
-        width: 40px;
-        height: 40px;
-    }
-
-    .slide-link {
+    .immersive-template .slide-link {
         font-size: 0.85rem;
         margin-bottom: 1.5rem;
     }
 
-    .cta-button {
-        padding: 0.5rem 1rem;
-        font-size: 0.9rem;
+    /* Split Template Responsive */
+    .split-template .split-content {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .split-template .split-text {
+        padding-right: 0;
+        margin-bottom: 2rem;
+    }
+
+    .split-template .split-image {
+        width: 100%;
+        height: 300px;
+    }
+
+    .split-template .slide-title {
+        font-size: 2rem;
+    }
+
+    .slide-controls {
+        bottom: 1rem;
+    }
+
+    .control-btn {
+        width: 35px;
+        height: 35px;
     }
 }
 
 @media (max-width: 480px) {
     .top-nav {
-        padding: 0.8rem;
+        padding: 0.5rem;
     }
 
     .logo a {
-        font-size: 1.1rem;
+        font-size: 1rem;
     }
 
     .menu-btn {
-        font-size: 1.3rem;
+        font-size: 1.2rem;
     }
 
-    .slide-content {
+    /* Immersive Template Responsive */
+    .immersive-template .slide-content {
         bottom: 15%;
+        padding: 1rem;
     }
 
-    .slide-title {
+    .immersive-template .slide-title {
         font-size: 1.8rem;
     }
 
-    .slide-description {
+    .immersive-template .slide-description {
         font-size: 0.9rem;
     }
 
-    .slide-link {
+    .immersive-template .slide-link {
         font-size: 0.8rem;
         margin-bottom: 1.2rem;
     }
 
-    .cta-button {
-        padding: 0.4rem 0.8rem;
-        font-size: 0.85rem;
+    /* Split Template Responsive */
+    .split-template .slide-title {
+        font-size: 1.5rem;
     }
 } 

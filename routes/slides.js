@@ -103,6 +103,8 @@ router.get('/active', async (req, res) => {
     console.log('Active booking:', activeBooking ? activeBooking.toJSON() : null);
 
     let slides;
+    let template_type = 'immersive'; // Default template type
+
     if (activeBooking) {
       // Get slides for active booking
       slides = await Slide.findAll({
@@ -112,6 +114,7 @@ router.get('/active', async (req, res) => {
         },
         order: [['order', 'ASC']]
       });
+      template_type = activeBooking.template_type;
       console.log('Found booking slides:', slides.length);
     } else {
       // Return default slides with images
@@ -153,7 +156,7 @@ router.get('/active', async (req, res) => {
       console.log('Using default slides:', slides.length);
     }
 
-    res.json(slides);
+    res.json({ slides, template_type });
   } catch (err) {
     console.error('Error fetching active slides:', err);
     res.status(500).json({ 

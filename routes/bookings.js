@@ -94,4 +94,32 @@ router.delete('/:id', auth, async (req, res) => {
     }
 });
 
+// Update a booking's template type
+router.patch('/:id', auth, async (req, res) => {
+    try {
+        const { template_type } = req.body;
+        
+        if (!template_type) {
+            return res.status(400).json({ message: 'Template type is required' });
+        }
+
+        const booking = await Booking.findOne({
+            where: {
+                id: req.params.id,
+                user_id: req.user.id
+            }
+        });
+
+        if (!booking) {
+            return res.status(404).json({ message: 'Booking not found' });
+        }
+
+        await booking.update({ template_type });
+        res.json(booking);
+    } catch (error) {
+        console.error('Error updating booking:', error);
+        res.status(500).json({ message: 'Failed to update booking' });
+    }
+});
+
 module.exports = router;

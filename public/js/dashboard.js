@@ -217,6 +217,15 @@ async function editSlides(bookingId) {
             </p>
         `;
 
+        // Set the current template type
+        const templateOptions = document.querySelectorAll('.template-option');
+        templateOptions.forEach(option => {
+            option.classList.remove('selected');
+            if (option.dataset.template === booking.template_type) {
+                option.classList.add('selected');
+            }
+        });
+
         // Clear existing slides
         const slidesContainer = document.getElementById('slidesContainer');
         slidesContainer.innerHTML = '';
@@ -247,6 +256,20 @@ async function editSlides(bookingId) {
     }
 }
 
+// Add template selection handling
+document.addEventListener('DOMContentLoaded', () => {
+    // Add click handlers for template options
+    const templateOptions = document.querySelectorAll('.template-option');
+    templateOptions.forEach(option => {
+        option.addEventListener('click', () => {
+            // Remove selected class from all options
+            templateOptions.forEach(opt => opt.classList.remove('selected'));
+            // Add selected class to clicked option
+            option.classList.add('selected');
+        });
+    });
+});
+
 // Save all slides for current booking
 async function saveSlides() {
     if (!currentBookingId) {
@@ -255,6 +278,27 @@ async function saveSlides() {
     }
 
     try {
+        // Get the selected template type
+        const selectedTemplate = document.querySelector('.template-option.selected');
+        if (!selectedTemplate) {
+            throw new Error('Please select a template style');
+        }
+        const templateType = selectedTemplate.dataset.template;
+
+        // Update the booking's template type
+        const updateBookingResponse = await fetch(`/api/bookings/${currentBookingId}`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            credentials: 'include',
+            body: JSON.stringify({ template_type: templateType })
+        });
+
+        if (!updateBookingResponse.ok) {
+            throw new Error('Failed to update template type');
+        }
+
         const slides = Array.from(document.querySelectorAll('.slide-card')).map((card, index) => {
             const formData = new FormData();
             
