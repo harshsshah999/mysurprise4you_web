@@ -3,6 +3,7 @@ const express = require('express');
 const session = require('express-session');
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
+const path = require('path');
 const { sequelize, User, Booking, Slide } = require('./models');
 const authRoutes = require('./routes/auth');
 const bookingRoutes = require('./routes/bookings');
@@ -29,17 +30,27 @@ initializeDatabase();
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(session({
-  secret: process.env.SESSION_SECRET,
+
+// Session configuration
+const sessionConfig = {
+  secret: process.env.SESSION_SECRET || 'your-secret-key',
   resave: false,
   saveUninitialized: false,
   cookie: {
-    secure: false, // Set to false for HTTP
+    secure: process.env.NODE_ENV === 'production', // Only use secure cookies in production
     httpOnly: true,
     maxAge: 24 * 60 * 60 * 1000, // 24 hours
     sameSite: 'lax' // Helps with cross-site requests
   }
-}));
+};
+
+// Use secure cookies in production
+if (app.get('env') === 'production') {
+  app.set('trust proxy', 1); // trust first proxy
+  sessionConfig.cookie.secure = true; // serve secure cookies
+}
+
+app.use(session(sessionConfig));
 
 // Passport Configuration
 passport.use(new LocalStrategy({
@@ -61,6 +72,9 @@ passport.serializeUser((user, done) => done(null, user.id));
 passport.deserializeUser(async (id, done) => {
   try {
     const user = await User.findByPk(id);
+    if (!user) {
+      return done(null, false);
+    }
     done(null, user);
   } catch (err) {
     done(err);
@@ -70,29 +84,52 @@ passport.deserializeUser(async (id, done) => {
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Serve static files
-app.use(express.static('public'));
-app.use(express.static('views'));
+// Set view engine and views directory
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'html');
+app.engine('html', require('ejs').renderFile);
 
-// Routes
+// Serve static files from public directory only
+app.use(express.static(path.join(__dirname, 'public')));
+
+// API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/slides', slideRoutes);
 
-// Root Route - serve index.html
+// Page Routes
 app.get('/', (req, res) => {
-  res.sendFile('index.html', { root: 'views' });
+  res.render('index');
 });
 
-// Auth page route
 app.get('/auth', (req, res) => {
-  res.sendFile('auth.html', { root: 'public' });
+  // Redirect to dashboard if already authenticated
+  if (req.isAuthenticated()) {
+    return res.redirect('/dashboard');
+  }
+  res.sendFile(path.join(__dirname, 'public', 'auth.html'));
 });
 
-// Dashboard page route
 app.get('/dashboard', (req, res) => {
-  res.sendFile('dashboard.html', { root: 'public' });
+  // Redirect to auth if not authenticated
+  if (!req.isAuthenticated()) {
+    return res.redirect('/auth');
+  }
+  res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
 });
 
+// Error handling middleware
+app.use((req, res, next) => {
+  res.status(404).render('404');
+});
+
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).render('500');
+});
+
+// Start server
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT} in ${app.get('env')} mode`);
+});

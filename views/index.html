@@ -3,7 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MySurprise4You</title>
+    <meta name="description" content="Create unforgettable moments with personalized digital surprises on MySurprise4You">
+    <meta name="keywords" content="digital surprises, personalized messages, special occasions, celebrations">
+    <meta name="author" content="MySurprise4You">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="theme-color" content="#007bff">
+    
+    <!-- Security headers -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://cdnjs.cloudflare.com; img-src 'self' data: https:; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com;">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-Frame-Options" content="SAMEORIGIN">
+    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+    
+    <title>MySurprise4You - Create Unforgettable Digital Surprises</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="/images/favicon.png">
+    
+    <!-- Stylesheets -->
     <link rel="stylesheet" href="/css/home.css">
     <link rel="stylesheet" href="/css/slides.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -11,7 +28,7 @@
 <body>
     <nav class="top-nav">
         <div class="logo">
-            <a href="/">MySurprise4You</a>
+            <a href="/" aria-label="Home">MySurprise4You</a>
         </div>
         <div class="nav-links">
             <a href="/auth.html" class="nav-btn">Sign In</a>
@@ -19,23 +36,29 @@
         </div>
     </nav>
 
-    <div class="slides-container">
-        <div class="slide active">
-            <div class="slide-content">
-                <h1 class="slide-title">Welcome to MySurprise4You</h1>
-                <p class="slide-description">Create unforgettable moments with personalized digital surprises</p>
-                <a href="/auth.html" class="cta-button">Get Started</a>
+    <main>
+        <div class="slides-container">
+            <div class="slide active" role="region" aria-label="Welcome slide">
+                <div class="slide-content">
+                    <h1 class="slide-title">Welcome to MySurprise4You</h1>
+                    <p class="slide-description">Create unforgettable moments with personalized digital surprises</p>
+                    <a href="/auth.html" class="cta-button" role="button">Get Started</a>
+                </div>
             </div>
         </div>
-    </div>
 
-    <div class="slide-controls">
-        <button id="prevSlide" class="control-btn"><i class="fas fa-chevron-left"></i></button>
-        <button id="nextSlide" class="control-btn"><i class="fas fa-chevron-right"></i></button>
-    </div>
+        <div class="slide-controls" role="navigation" aria-label="Slide navigation">
+            <button id="prevSlide" class="control-btn" aria-label="Previous slide">
+                <i class="fas fa-chevron-left" aria-hidden="true"></i>
+            </button>
+            <button id="nextSlide" class="control-btn" aria-label="Next slide">
+                <i class="fas fa-chevron-right" aria-hidden="true"></i>
+            </button>
+        </div>
 
-    <div class="slide-indicators"></div>
+        <div class="slide-indicators" role="navigation" aria-label="Slide indicators"></div>
+    </main>
 
-    <script src="/js/slides.js"></script>
+    <script src="/js/slides.js" defer></script>
 </body>
 </html> 
