@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const nextButton = document.getElementById('nextSlide');
     let currentSlideIndex = 0;
     let slides = [];
-    let template_type = 'immersive';
+    let currentTemplate = null;
     let autoAdvanceInterval;
 
     // Fetch slides from API
@@ -14,14 +14,17 @@ document.addEventListener('DOMContentLoaded', () => {
             const response = await fetch('/api/slides/active');
             if (!response.ok) throw new Error('Failed to fetch slides');
             const data = await response.json();
-            console.log('Received data:', data); // Debug log
+            console.log('Received data:', data);
             slides = data.slides;
-            template_type = data.template_type;
-            console.log('Template type:', template_type); // Debug log
+            
+            // Get template from factory
+            const templateType = data.template_type || 'immersive';
+            currentTemplate = TemplateFactory.getTemplate(templateType);
+            console.log('Template type:', templateType);
             
             // Apply template-specific class to container
-            slidesContainer.className = `slides-container ${template_type}-template`;
-            console.log('Container classes:', slidesContainer.className); // Debug log
+            slidesContainer.className = `slides-container ${currentTemplate.getContainerClasses()}`;
+            console.log('Container classes:', slidesContainer.className);
             
             renderSlides();
             startAutoAdvance();
@@ -54,38 +57,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const content = document.createElement('div');
             content.className = 'slide-content';
             
-            // Build content HTML based on template type
-            let contentHTML = '';
+            // Use template to render slide content
+            content.innerHTML = currentTemplate.renderSlide(slide);
             
-            if (template_type === 'split') {
-                contentHTML = `
-                    <div class="split-content">
-                        <div class="split-text">
-                            <h1 class="slide-title">${slide.title}</h1>
-                            <p class="slide-description">${slide.description}</p>
-                            ${slide.link_url && slide.link_title ? `
-                                <a href="${slide.link_url}" class="slide-link" target="_blank" rel="noopener noreferrer">
-                                    ${slide.link_title}
-                                </a>
-                            ` : ''}
-                        </div>
-                        <div class="split-image" style="background-image: url('${slide.background_value}')"></div>
-                    </div>
-                `;
-            } else {
-                // Default immersive template
-                contentHTML = `
-                    <h1 class="slide-title">${slide.title}</h1>
-                    <p class="slide-description">${slide.description}</p>
-                    ${slide.link_url && slide.link_title ? `
-                        <a href="${slide.link_url}" class="slide-link" target="_blank" rel="noopener noreferrer">
-                            ${slide.link_title}
-                        </a>
-                    ` : ''}
-                `;
-            }
-
-            content.innerHTML = contentHTML;
             slideElement.appendChild(content);
             slidesContainer.appendChild(slideElement);
 
@@ -124,37 +98,30 @@ document.addEventListener('DOMContentLoaded', () => {
         goToSlide(currentSlideIndex - 1);
     }
 
-    // Auto-advance functions
+    // Auto-advance functionality
     function startAutoAdvance() {
-        stopAutoAdvance(); // Clear any existing interval
+        if (autoAdvanceInterval) clearInterval(autoAdvanceInterval);
         autoAdvanceInterval = setInterval(nextSlide, 5000);
     }
 
-    function stopAutoAdvance() {
-        if (autoAdvanceInterval) {
-            clearInterval(autoAdvanceInterval);
-        }
-    }
-
     function restartAutoAdvance() {
-        stopAutoAdvance();
-        startAutoAdvance();
+        if (autoAdvanceInterval) clearInterval(autoAdvanceInterval);
+        autoAdvanceInterval = setInterval(nextSlide, 5000);
     }
 
     // Event listeners
-    prevButton.addEventListener('click', () => {
-        prevSlide();
-        restartAutoAdvance();
-    });
+    if (prevButton) prevButton.addEventListener('click', prevSlide);
+    if (nextButton) nextButton.addEventListener('click', nextSlide);
 
-    nextButton.addEventListener('click', () => {
-        nextSlide();
-        restartAutoAdvance();
-    });
-
-    // Pause auto-advance when hovering over slides
-    slidesContainer.addEventListener('mouseenter', stopAutoAdvance);
-    slidesContainer.addEventListener('mouseleave', startAutoAdvance);
+    // Mobile menu toggle
+    const menuBtn = document.querySelector('.menu-btn');
+    const navLinks = document.querySelector('.nav-links');
+    
+    if (menuBtn && navLinks) {
+        menuBtn.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+        });
+    }
 
     // Initialize
     fetchSlides();
