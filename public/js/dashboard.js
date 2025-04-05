@@ -137,6 +137,14 @@ function addSlide(slideData = null) {
                 <textarea class="form-control slide-description" rows="3">${slideData?.description || ''}</textarea>
             </div>
             <div class="mb-3">
+                <label class="form-label">Link Title</label>
+                <input type="text" class="form-control slide-link-title" value="${slideData?.link_title || ''}" placeholder="Optional link text">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Link URL</label>
+                <input type="url" class="form-control slide-link-url" value="${slideData?.link_url || ''}" placeholder="https://example.com">
+            </div>
+            <div class="mb-3">
                 <label class="form-label">Background Type</label>
                 <select class="form-control bg-type" onchange="toggleBackgroundInput(this)">
                     <option value="gradient" ${slideData?.background_type === 'gradient' ? 'selected' : ''}>Gradient</option>
@@ -248,7 +256,6 @@ async function saveSlides() {
 
     try {
         const slides = Array.from(document.querySelectorAll('.slide-card')).map((card, index) => {
-            const slideId = card.getAttribute('data-slide-id');
             const formData = new FormData();
             
             // Add basic slide data
@@ -256,6 +263,8 @@ async function saveSlides() {
             formData.append('order', index);
             formData.append('title', card.querySelector('.slide-title').value);
             formData.append('description', card.querySelector('.slide-description').value || '');
+            formData.append('link_title', card.querySelector('.slide-link-title').value || '');
+            formData.append('link_url', card.querySelector('.slide-link-url').value || '');
             
             const bgType = card.querySelector('.bg-type').value;
             formData.append('backgroundType', bgType);
@@ -282,6 +291,7 @@ async function saveSlides() {
                 formData.append('backgroundValue', bgValue);
             }
 
+            const slideId = card.dataset.slideId;
             if (slideId) {
                 formData.append('id', slideId);
             }
@@ -298,7 +308,8 @@ async function saveSlides() {
             });
 
             if (!response.ok) {
-                throw new Error('Failed to save slide');
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Failed to save slide');
             }
         }
 
@@ -444,3 +455,26 @@ document.getElementById('logoutBtn').addEventListener('click', async (e) => {
         console.error('Logout failed:', error);
     }
 });
+
+// Get background value based on type
+function getBackgroundValue(card, type) {
+    switch(type) {
+        case 'image':
+            const fileInput = card.querySelector('input[type="file"]');
+            const hiddenInput = card.querySelector('.bg-value-hidden');
+            
+            if (fileInput.files[0]) {
+                // New image uploaded
+                return fileInput.files[0];
+            } else if (hiddenInput && hiddenInput.value) {
+                // Use existing image path
+                return hiddenInput.value;
+            }
+            return null;
+        case 'gradient':
+        case 'solid':
+            return card.querySelector('.bg-value').value;
+        default:
+            return null;
+    }
+}

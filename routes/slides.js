@@ -166,7 +166,7 @@ router.get('/active', async (req, res) => {
 // Create or update a slide
 router.post('/', auth, upload.single('image'), async (req, res) => {
     try {
-        const { bookingId, title, description, backgroundType, backgroundValue, order, id } = req.body;
+        const { bookingId, title, description, backgroundType, backgroundValue, order, id, link_title, link_url } = req.body;
         
         // Validate required fields
         if (!bookingId || !title || !backgroundType) {
@@ -221,6 +221,8 @@ router.post('/', auth, upload.single('image'), async (req, res) => {
             await slide.update({
                 title,
                 description,
+                link_title,
+                link_url,
                 background_type: backgroundType,
                 background_value: finalBackgroundValue,
                 order: order || 0
@@ -231,6 +233,8 @@ router.post('/', auth, upload.single('image'), async (req, res) => {
                 booking_id: bookingId,
                 title,
                 description,
+                link_title,
+                link_url,
                 background_type: backgroundType,
                 background_value: finalBackgroundValue,
                 order: order || 0

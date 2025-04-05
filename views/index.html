@@ -30,6 +30,9 @@
         <div class="logo">
             <a href="/" aria-label="Home">MySurprise4You</a>
         </div>
+        <button class="menu-btn" aria-label="Toggle menu">
+            <i class="fas fa-bars" aria-hidden="true"></i>
+        </button>
         <div class="nav-links">
             <a href="/auth.html" class="nav-btn">Sign In</a>
             <a href="/dashboard.html" class="nav-btn">Dashboard</a>
@@ -42,6 +45,7 @@
                 <div class="slide-content">
                     <h1 class="slide-title">Welcome to MySurprise4You</h1>
                     <p class="slide-description">Create unforgettable moments with personalized digital surprises</p>
+                    <a href="#" class="slide-link" id="slideLink" target="_blank" rel="noopener noreferrer"></a>
                     <a href="/auth.html" class="cta-button" role="button">Get Started</a>
                 </div>
             </div>
@@ -60,5 +64,35 @@
     </main>
 
     <script src="/js/slides.js" defer></script>
+    <script>
+        // Mobile menu functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const menuBtn = document.querySelector('.menu-btn');
+            const navLinks = document.querySelector('.nav-links');
+
+            menuBtn.addEventListener('click', function() {
+                navLinks.classList.toggle('active');
+            });
+
+            // Close menu when clicking outside
+            document.addEventListener('click', function(event) {
+                if (!event.target.closest('.top-nav')) {
+                    navLinks.classList.remove('active');
+                }
+            });
+        });
+
+        // Update slide link
+        function updateSlideLink(linkUrl, linkTitle) {
+            const linkElement = document.getElementById('slideLink');
+            if (linkUrl && linkTitle) {
+                linkElement.href = linkUrl;
+                linkElement.textContent = linkTitle;
+                linkElement.style.display = 'inline-block';
+            } else {
+                linkElement.style.display = 'none';
+            }
+        }
+    </script>
 </body>
 </html> 

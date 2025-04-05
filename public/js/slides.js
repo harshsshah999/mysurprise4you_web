@@ -43,11 +43,23 @@ document.addEventListener('DOMContentLoaded', () => {
             // Create content
             const content = document.createElement('div');
             content.className = 'slide-content';
-            content.innerHTML = `
+            
+            // Build content HTML
+            let contentHTML = `
                 <h1 class="slide-title">${slide.title}</h1>
                 <p class="slide-description">${slide.description}</p>
             `;
 
+            // Add link if available
+            if (slide.link_url && slide.link_title) {
+                contentHTML += `
+                    <a href="${slide.link_url}" class="slide-link" target="_blank" rel="noopener noreferrer">
+                        ${slide.link_title}
+                    </a>
+                `;
+            }
+
+            content.innerHTML = contentHTML;
             slideElement.appendChild(content);
             slidesContainer.appendChild(slideElement);
 

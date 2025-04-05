@@ -14,6 +14,14 @@ const Slide = sequelize.define('Slide', {
   description: { 
     type: DataTypes.TEXT 
   },
+  link_url: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  link_title: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
   background_type: { 
     type: DataTypes.STRING, 
     allowNull: false 
