@@ -8,6 +8,22 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentTemplate = null;
     let autoAdvanceInterval;
 
+    // Mobile menu toggle
+    const menuBtn = document.querySelector('.menu-btn');
+    const navLinks = document.querySelector('.nav-links');
+    
+    if (menuBtn && navLinks) {
+        menuBtn.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+            // Toggle menu icon
+            const icon = menuBtn.querySelector('i');
+            if (icon) {
+                icon.classList.toggle('fa-bars');
+                icon.classList.toggle('fa-times');
+            }
+        });
+    }
+
     // Fetch slides from API
     async function fetchSlides() {
         try {
@@ -112,16 +128,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Event listeners
     if (prevButton) prevButton.addEventListener('click', prevSlide);
     if (nextButton) nextButton.addEventListener('click', nextSlide);
-
-    // Mobile menu toggle
-    const menuBtn = document.querySelector('.menu-btn');
-    const navLinks = document.querySelector('.nav-links');
-    
-    if (menuBtn && navLinks) {
-        menuBtn.addEventListener('click', () => {
-            navLinks.classList.toggle('active');
-        });
-    }
 
     // Initialize
     fetchSlides();

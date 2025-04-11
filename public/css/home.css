@@ -231,51 +231,94 @@ body {
 /* Split Template Styles */
 .split-template .slide {
     background: none;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .split-template .slide-content {
     width: 100%;
-    max-width: 1200px;
+    max-width: 1400px;
     margin: 0 auto;
     padding: 2rem;
     z-index: 2;
+    height: 100vh;
+    display: flex;
+    align-items: center;
 }
 
 .split-template .split-content {
     display: flex;
     align-items: center;
-    gap: 2rem;
-    background: rgba(255, 255, 255, 0.9);
-    border-radius: 1rem;
-    padding: 2rem;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    gap: 3rem;
+    background: #FFFFFF;
+    border-radius: 0.5rem;
+    padding: 3rem;
+    box-shadow: 0 0.875rem 1.5rem 0 rgba(32, 46, 66, 0.059);
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+    transition: opacity 1.25s ease-in-out 0s;
 }
 
 .split-template .split-text {
     flex: 1;
     padding-right: 2rem;
+    position: relative;
+    z-index: 2;
+}
+
+.split-template .split-image-container {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .split-template .split-image {
     flex: 1;
-    height: 400px;
+    height: 500px;
     background-size: cover;
     background-position: center;
-    border-radius: 0.5rem;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 0.25rem;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.5s ease;
+}
+
+.split-template .split-image::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to right, rgba(0,0,0,0.1), transparent);
+    pointer-events: none;
+}
+
+.split-template .split-image:hover {
+    transform: scale(1.02);
 }
 
 .split-template .slide-title {
-    font-size: 2.5rem;
-    margin-bottom: 1rem;
-    color: #333;
+    font-size: 2.25em;
+    line-height: 1.75;
+    font-weight: 400;
+    color: #000000;
+    margin-bottom: 1.75rem;
+    letter-spacing: -0.075rem;
+    font-family: 'Arial', sans-serif;
+    text-align: left;
 }
 
 .split-template .slide-description {
-    font-size: 1.1rem;
-    line-height: 1.6;
-    color: #666;
-    margin-bottom: 1.5rem;
+    font-size: 1.125em;
+    line-height: 1.5;
+    color: #989EA6;
+    margin-bottom: 1.75rem;
+    font-weight: 400;
+    letter-spacing: 0;
+    text-align: left;
 }
 
 .split-template .slide-link {
@@ -284,12 +327,210 @@ body {
     background-color: #007bff;
     color: white;
     text-decoration: none;
-    border-radius: 0.5rem;
-    transition: background-color 0.3s ease;
+    border-radius: 0.25rem;
+    transition: all 0.25s ease;
+    font-weight: 600;
+    font-size: 1em;
+    box-shadow: 0 0.25rem 0.5rem rgba(0, 123, 255, 0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+.split-template .slide-link::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to right, transparent, rgba(255,255,255,0.2), transparent);
+    transform: translateX(-100%);
+    transition: transform 0.6s ease;
 }
 
 .split-template .slide-link:hover {
-    background-color: #0056b3;
+    background-color: #0069d9;
+    transform: translateY(-2px);
+    box-shadow: 0 0.375rem 0.75rem rgba(0, 123, 255, 0.3);
+}
+
+.split-template .slide-link:hover::before {
+    transform: translateX(100%);
+}
+
+/* Split Template Mobile Styles */
+@media (max-width: 768px) {
+    .split-template .slide-content {
+        padding: 0;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        background-color: #FFFFFF;
+        padding-top: 60px; /* Add padding for the fixed header */
+    }
+
+    .split-template .split-content {
+        flex-direction: column;
+        gap: 0;
+        padding: 0;
+        height: 100%;
+        background: #FFFFFF;
+        box-shadow: none;
+        border-radius: 0;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .split-template .split-image-container {
+        flex: 0 0 auto;
+        height: 50vh;
+        width: 100%;
+        margin: 1.5rem 0 0;
+        padding: 0 1.5rem;
+        order: 1;
+    }
+
+    .split-template .split-image {
+        height: 100%;
+        width: 100%;
+        border-radius: 0.25rem;
+        box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
+    }
+
+    .split-template .split-text {
+        flex: 1;
+        padding: 2rem;
+        background: #FFFFFF;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        width: 100%;
+        order: 2;
+        position: relative;
+    }
+
+    .split-template .slide-title {
+        font-size: 2em;
+        margin-bottom: 1rem;
+        color: #000000;
+        text-align: left;
+    }
+
+    .split-template .slide-description {
+        font-size: 1.125em;
+        margin-bottom: 1.5rem;
+        color: #989EA6;
+        text-align: left;
+    }
+
+    .split-template .slide-link {
+        padding: 0.8rem 1.5rem;
+        font-size: 1em;
+        align-self: flex-start;
+    }
+
+    /* Adjust controls for mobile split view */
+    .split-template .slide-controls {
+        bottom: 1.5rem;
+        background: rgba(255, 255, 255, 0.95);
+        padding: 0.75rem;
+        border-radius: 0.5rem;
+        margin: 0 1.5rem;
+        box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
+    }
+
+    .split-template .control-btn {
+        background: rgba(0, 0, 0, 0.08);
+        color: #333;
+        width: 38px;
+        height: 38px;
+    }
+
+    .split-template .control-btn:hover {
+        background: rgba(0, 0, 0, 0.15);
+    }
+
+    /* Fix header for mobile */
+    .top-nav {
+        background: #FFFFFF;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .logo a {
+        color: #333;
+    }
+
+    .menu-btn {
+        display: block;
+        color: #333;
+    }
+
+    .nav-links {
+        position: fixed;
+        top: 60px; /* Height of the header */
+        right: -100%;
+        height: calc(100vh - 60px);
+        width: 70%;
+        background: #FFFFFF;
+        flex-direction: column;
+        padding: 1rem;
+        transition: right 0.3s ease;
+        box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .nav-links.active {
+        right: 0;
+    }
+
+    .nav-btn {
+        width: 100%;
+        text-align: center;
+        padding: 1rem;
+        color: #333;
+        border-bottom: 1px solid #eee;
+    }
+
+    .nav-btn:last-child {
+        background-color: #007bff;
+        color: #fff;
+    }
+}
+
+@media (max-width: 480px) {
+    .split-template .split-image-container {
+        height: 45vh;
+        padding: 0 1.25rem;
+    }
+
+    .split-template .split-text {
+        padding: 1.5rem;
+    }
+
+    .split-template .slide-title {
+        font-size: 1.8em;
+        color: #000000;
+        text-align: left;
+    }
+
+    .split-template .slide-description {
+        font-size: 1em;
+        text-align: left;
+    }
+
+    .split-template .slide-link {
+        padding: 0.7rem 1.4rem;
+        font-size: 0.95em;
+    }
+
+    .split-template .slide-controls {
+        padding: 0.6rem;
+        margin: 0 1rem;
+    }
+
+    .split-template .control-btn {
+        width: 34px;
+        height: 34px;
+    }
 }
 
 /* ===== RESPONSIVE STYLES ===== */

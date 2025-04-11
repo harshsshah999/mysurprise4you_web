@@ -57,7 +57,9 @@ class SplitTemplate extends Template {
                         </a>
                     ` : ''}
                 </div>
-                <div class="split-image" style="background-image: url('${slide.background_value}')"></div>
+                <div class="split-image-container">
+                    <div class="split-image" style="background-image: url('${slide.background_value}')"></div>
+                </div>
             </div>
         `;
     }
