@@ -3,6 +3,19 @@ let currentUser = null;
 let currentBookingId = null;
 let currentBookings = []; // Store bookings globally
 
+// Initialize template selection
+function initializeTemplateSelection() {
+    const templateOptions = document.querySelectorAll('.template-option');
+    templateOptions.forEach(option => {
+        option.addEventListener('click', () => {
+            // Remove selected class from all options
+            templateOptions.forEach(opt => opt.classList.remove('selected'));
+            // Add selected class to clicked option
+            option.classList.add('selected');
+        });
+    });
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
     try {
         // Check authentication first
@@ -14,6 +27,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             console.error('Could not find bookingDateTime input');
             return;
         }
+
+        // Initialize template selection
+        initializeTemplateSelection();
 
         console.log('Initializing Flatpickr...');
         const fp = flatpickr(dateInput, {
@@ -196,7 +212,7 @@ function toggleBackgroundInput(select) {
 // Edit slides for a booking
 async function editSlides(bookingId) {
     try {
-        currentBookingId = bookingId; // Set the current booking ID
+        currentBookingId = bookingId;
         const booking = currentBookings.find(b => b.id === bookingId);
         
         if (!booking) {
@@ -217,7 +233,7 @@ async function editSlides(bookingId) {
             </p>
         `;
 
-        // Set the current template type
+        // Set the current template type and reinitialize template selection
         const templateOptions = document.querySelectorAll('.template-option');
         templateOptions.forEach(option => {
             option.classList.remove('selected');
@@ -225,6 +241,7 @@ async function editSlides(bookingId) {
                 option.classList.add('selected');
             }
         });
+        initializeTemplateSelection(); // Reinitialize template selection
 
         // Clear existing slides
         const slidesContainer = document.getElementById('slidesContainer');
@@ -255,20 +272,6 @@ async function editSlides(bookingId) {
         alert('Failed to load slides. Please try again.');
     }
 }
-
-// Add template selection handling
-document.addEventListener('DOMContentLoaded', () => {
-    // Add click handlers for template options
-    const templateOptions = document.querySelectorAll('.template-option');
-    templateOptions.forEach(option => {
-        option.addEventListener('click', () => {
-            // Remove selected class from all options
-            templateOptions.forEach(opt => opt.classList.remove('selected'));
-            // Add selected class to clicked option
-            option.classList.add('selected');
-        });
-    });
-});
 
 // Save all slides for current booking
 async function saveSlides() {
