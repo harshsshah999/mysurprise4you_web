@@ -17,6 +17,62 @@
         .flatpickr-calendar {
             z-index: 1050;
         }
+        .template-option {
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border-radius: 12px;
+            border: 2px solid transparent;
+            margin-bottom: 0;
+        }
+        .template-option.selected,
+        .template-option:focus,
+        .template-option:active {
+            border: 2px solid #0d6efd;
+            box-shadow: 0 0 0 0.2rem rgba(13,110,253,.25);
+            background: #f0f8ff;
+        }
+        .template-option:hover {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 8px 24px rgba(13,110,253,0.10);
+        }
+        .template-card {
+            background: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        .template-preview {
+            height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-weight: bold;
+            font-size: 1.2rem;
+            position: relative;
+        }
+        .preview-content {
+            text-align: center;
+            width: 100%;
+        }
+        .template-info {
+            padding: 1rem;
+            flex: 1;
+        }
+        .template-features {
+            margin-top: 0.5rem;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            font-size: 0.95em;
+            color: #0d6efd;
+        }
+        .template-features i {
+            margin-right: 0.3em;
+        }
     </style>
 </head>
 <body class="bg-light">
@@ -78,32 +134,44 @@
                     <h5 class="mb-3">Choose Template Style</h5>
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <div class="template-option card h-100" data-template="immersive">
-                                <div class="card-body">
-                                    <div class="template-preview mb-3" style="height: 150px; background: linear-gradient(135deg, #FEADA6, #F5EFEF); position: relative;">
-                                        <div class="position-absolute bottom-0 start-0 p-3 text-white" style="background: rgba(0,0,0,0.5); width: 100%;">
-                                            <h6 class="mb-0">Immersive Fullscreen</h6>
-                                            <small>Full-screen images with overlaid text</small>
+                            <div class="template-option" data-template="immersive">
+                                <div class="template-card">
+                                    <div class="template-preview" style="background: linear-gradient(135deg, #FEADA6, #F5EFEF);">
+                                        <div class="preview-content">
+                                            <h3>Immersive</h3>
+                                            <p>Full-screen experience</p>
                                         </div>
                                     </div>
-                                    <p class="card-text small">Perfect for emotional, cinematic presentations with full-screen images and overlaid text.</p>
+                                    <div class="template-info">
+                                        <h4>Immersive Fullscreen</h4>
+                                        <p>Perfect for emotional, cinematic presentations with full-screen images and overlaid text.</p>
+                                        <div class="template-features">
+                                            <span><i class="fas fa-expand"></i> Full-screen</span>
+                                            <span><i class="fas fa-image"></i> Image-focused</span>
+                                            <span><i class="fas fa-text-height"></i> Overlaid text</span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="template-option card h-100" data-template="split">
-                                <div class="template-preview mb-3" style="height: 150px; background: #f8f9fa; position: relative;">
-                                    <div class="row h-100">
-                                        <div class="col-6 p-3">
-                                            <h6>Title</h6>
-                                            <p class="small mb-0">Description text here</p>
+                            <div class="template-option" data-template="split">
+                                <div class="template-card">
+                                    <div class="template-preview" style="background: linear-gradient(135deg, #A1C4FD, #C2E9FB);">
+                                        <div class="preview-content">
+                                            <h3>Split</h3>
+                                            <p>Text & Image Side-by-Side</p>
                                         </div>
-                                        <div class="col-6" style="background: linear-gradient(135deg, #A1C4FD, #C2E9FB);"></div>
                                     </div>
-                                </div>
-                                <div class="card-body">
-                                    <h6 class="card-title">Split View</h6>
-                                    <p class="card-text small">Structured layout with text and image side by side (or stacked on mobile).</p>
+                                    <div class="template-info">
+                                        <h4>Split View</h4>
+                                        <p>Structured layout with text and image side by side (or stacked on mobile).</p>
+                                        <div class="template-features">
+                                            <span><i class="fas fa-columns"></i> Split layout</span>
+                                            <span><i class="fas fa-align-left"></i> Text & Image</span>
+                                            <span><i class="fas fa-mobile-alt"></i> Responsive</span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -129,5 +197,16 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="/js/dashboard.js"></script>
+    <script>
+        function initializeTemplateSelection() {
+            const templateOptions = document.querySelectorAll('.template-option');
+            templateOptions.forEach(option => {
+                option.addEventListener('click', () => {
+                    templateOptions.forEach(opt => opt.classList.remove('selected'));
+                    option.classList.add('selected');
+                });
+            });
+        }
+    </script>
 </body>
 </html>
