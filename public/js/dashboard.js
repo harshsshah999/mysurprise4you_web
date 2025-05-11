@@ -570,45 +570,56 @@ async function handleImageUpload(input) {
         // Create FormData
         const formData = new FormData();
         formData.append('image', file);
+        formData.append('bookingId', currentBookingId);
+        formData.append('title', slideCard.querySelector('.slide-title').value || 'Untitled Slide');
+        formData.append('description', slideCard.querySelector('.slide-description').value || '');
+        formData.append('backgroundType', 'image');
+        formData.append('order', Array.from(document.querySelectorAll('.slide-card')).indexOf(slideCard));
 
-        // Upload image
-        const response = await fetch('/api/upload', {
+        // Upload image using the slides endpoint
+        const response = await fetch('/api/slides', {
             method: 'POST',
             credentials: 'include',
             body: formData
         });
 
         if (!response.ok) {
-            throw new Error('Failed to upload image');
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Failed to upload image');
         }
 
-        const data = await response.json();
+        const slide = await response.json();
         
         // Update progress to 100%
         progressBar.style.width = '100%';
 
         // Update image preview
         if (existingImage) {
-            existingImage.src = data.url;
-            existingImage.dataset.originalPath = data.url;
+            existingImage.src = slide.background_value;
+            existingImage.dataset.originalPath = slide.background_value;
         } else {
             const newImage = document.createElement('img');
-            newImage.src = data.url;
+            newImage.src = slide.background_value;
             newImage.className = 'img-thumbnail mt-2';
             newImage.style.maxHeight = '100px';
-            newImage.dataset.originalPath = data.url;
+            newImage.dataset.originalPath = slide.background_value;
             input.parentNode.insertBefore(newImage, progressContainer);
         }
 
         // Update hidden input
         if (hiddenInput) {
-            hiddenInput.value = data.url;
+            hiddenInput.value = slide.background_value;
         } else {
             const newHiddenInput = document.createElement('input');
             newHiddenInput.type = 'hidden';
             newHiddenInput.className = 'bg-value-hidden';
-            newHiddenInput.value = data.url;
+            newHiddenInput.value = slide.background_value;
             input.parentNode.appendChild(newHiddenInput);
+        }
+
+        // Update slide ID if it's a new slide
+        if (!slideCard.dataset.slideId) {
+            slideCard.dataset.slideId = slide.id;
         }
 
         // Hide progress container after a short delay
