@@ -28,6 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
         const email = document.getElementById('login-email').value;
         const password = document.getElementById('password').value;
+        const errorMessage = document.getElementById('login-error');
 
         try {
             console.log('Attempting login...');
@@ -44,11 +45,29 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.log('Login successful:', data);
                 window.location.href = '/dashboard.html';
             } else {
-                throw new Error(data.message || 'Login failed');
+                // Show specific error message based on error type
+                let message = 'Login failed. Please try again.';
+                switch(data.type) {
+                    case 'account_not_found':
+                        message = 'Account does not exist. Please check your email or register.';
+                        break;
+                    case 'invalid_password':
+                        message = 'Incorrect password. Please try again.';
+                        break;
+                    case 'server_error':
+                        message = 'Server error. Please try again later.';
+                        break;
+                    case 'session_error':
+                        message = 'Session error. Please try again.';
+                        break;
+                }
+                errorMessage.textContent = message;
+                errorMessage.style.display = 'block';
             }
         } catch (err) {
             console.error('Login error:', err);
-            alert(err.message || 'Login failed. Please try again.');
+            errorMessage.textContent = 'An unexpected error occurred. Please try again.';
+            errorMessage.style.display = 'block';
         }
     });
 

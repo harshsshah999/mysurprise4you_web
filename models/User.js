@@ -16,7 +16,13 @@ const User = sequelize.define('User', {
   },
   password: {
     type: DataTypes.STRING,
-    allowNull: false
+    allowNull: false,
+    set(value) {
+      // Hash the password before saving
+      const salt = bcrypt.genSaltSync(10);
+      const hash = bcrypt.hashSync(value, salt);
+      this.setDataValue('password', hash);
+    }
   }
 }, {
   tableName: 'users',
@@ -29,7 +35,12 @@ const User = sequelize.define('User', {
 });
 
 User.prototype.validPassword = function(password) {
-  return bcrypt.compareSync(password, this.password);
+  console.log('Validating password...');
+  console.log('Input password:', password);
+  console.log('Stored hash:', this.password);
+  const isValid = bcrypt.compareSync(password, this.password);
+  console.log('Password validation result:', isValid);
+  return isValid;
 };
 
 module.exports = User;

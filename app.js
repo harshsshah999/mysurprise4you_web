@@ -58,8 +58,16 @@ passport.use(new LocalStrategy({
   passwordField: 'password'
 }, async (email, password, done) => {
   try {
-    const user = await User.findOne({ where: { email } });
-    if (!user || !(await user.validPassword(password))) {
+    const user = await User.findOne({ 
+      where: { 
+        email,
+        deleted_at: null // Only check for non-deleted users
+      }
+    });
+    if (!user) {
+      return done(null, false, { message: 'Invalid credentials' });
+    }
+    if (!user.validPassword(password)) {
       return done(null, false, { message: 'Invalid credentials' });
     }
     return done(null, user);
