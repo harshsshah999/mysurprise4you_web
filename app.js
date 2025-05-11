@@ -15,8 +15,8 @@ const app = express();
 // Database Connection
 async function initializeDatabase() {
   try {
-    // Sync database without force option to preserve data
-    await configSequelize.sync();
+    // Sync database with alter option to automatically update schema
+    await configSequelize.sync({ alter: true });
     console.log('Database synchronized successfully');
   } catch (error) {
     console.error('Failed to initialize database:', error);
