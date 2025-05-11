@@ -185,13 +185,19 @@ function getBackgroundInputHTML(type, value) {
         case 'image':
             return `
                 <div>
-                    <input type="file" class="form-control bg-value" accept="image/*">
+                    <input type="file" class="form-control bg-value" accept="image/*" onchange="handleImageUpload(this)">
                     ${value ? `
                         <div class="mt-2">
                             <img src="${value}" class="img-thumbnail" style="max-height: 100px;" data-original-path="${value}">
                             <input type="hidden" class="bg-value-hidden" value="${value}">
                         </div>
                     ` : ''}
+                    <div class="upload-progress mt-2 d-none">
+                        <div class="progress">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
+                        </div>
+                        <small class="text-muted">Uploading image...</small>
+                    </div>
                 </div>
             `;
         case 'gradient':
@@ -281,6 +287,12 @@ async function saveSlides() {
     }
 
     try {
+        // Show loading state
+        const saveButton = document.querySelector('button.btn-success');
+        const originalButtonText = saveButton.innerHTML;
+        saveButton.disabled = true;
+        saveButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+
         // Get the selected template type
         const selectedTemplate = document.querySelector('.template-option.selected');
         if (!selectedTemplate) {
@@ -346,8 +358,12 @@ async function saveSlides() {
             return formData;
         });
 
-        // Save each slide
-        for (const formData of slides) {
+        // Save each slide with progress tracking
+        const totalSlides = slides.length;
+        for (let i = 0; i < slides.length; i++) {
+            const formData = slides[i];
+            saveButton.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Saving slide ${i + 1} of ${totalSlides}...`;
+            
             const response = await fetch('/api/slides', {
                 method: 'POST',
                 credentials: 'include',
@@ -360,11 +376,20 @@ async function saveSlides() {
             }
         }
 
+        // Reset button state
+        saveButton.disabled = false;
+        saveButton.innerHTML = originalButtonText;
+
         alert('Slides saved successfully!');
         await editSlides(currentBookingId); // Refresh the slides view
     } catch (error) {
         console.error('Error saving slides:', error);
         alert(error.message || 'Failed to save slides. Please try again.');
+        
+        // Reset button state on error
+        const saveButton = document.querySelector('button.btn-success');
+        saveButton.disabled = false;
+        saveButton.innerHTML = '<i class="fas fa-save"></i> Save All Slides';
     }
 }
 
@@ -523,5 +548,78 @@ function getBackgroundValue(card, type) {
             return card.querySelector('.bg-value').value;
         default:
             return null;
+    }
+}
+
+// Handle individual image upload
+async function handleImageUpload(input) {
+    const file = input.files[0];
+    if (!file) return;
+
+    const slideCard = input.closest('.slide-card');
+    const progressContainer = slideCard.querySelector('.upload-progress');
+    const progressBar = progressContainer.querySelector('.progress-bar');
+    const existingImage = slideCard.querySelector('.img-thumbnail');
+    const hiddenInput = slideCard.querySelector('.bg-value-hidden');
+
+    try {
+        // Show progress container
+        progressContainer.classList.remove('d-none');
+        progressBar.style.width = '0%';
+
+        // Create FormData
+        const formData = new FormData();
+        formData.append('image', file);
+
+        // Upload image
+        const response = await fetch('/api/upload', {
+            method: 'POST',
+            credentials: 'include',
+            body: formData
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to upload image');
+        }
+
+        const data = await response.json();
+        
+        // Update progress to 100%
+        progressBar.style.width = '100%';
+
+        // Update image preview
+        if (existingImage) {
+            existingImage.src = data.url;
+            existingImage.dataset.originalPath = data.url;
+        } else {
+            const newImage = document.createElement('img');
+            newImage.src = data.url;
+            newImage.className = 'img-thumbnail mt-2';
+            newImage.style.maxHeight = '100px';
+            newImage.dataset.originalPath = data.url;
+            input.parentNode.insertBefore(newImage, progressContainer);
+        }
+
+        // Update hidden input
+        if (hiddenInput) {
+            hiddenInput.value = data.url;
+        } else {
+            const newHiddenInput = document.createElement('input');
+            newHiddenInput.type = 'hidden';
+            newHiddenInput.className = 'bg-value-hidden';
+            newHiddenInput.value = data.url;
+            input.parentNode.appendChild(newHiddenInput);
+        }
+
+        // Hide progress container after a short delay
+        setTimeout(() => {
+            progressContainer.classList.add('d-none');
+        }, 1000);
+
+    } catch (error) {
+        console.error('Error uploading image:', error);
+        alert('Failed to upload image. Please try again.');
+        input.value = ''; // Clear the file input
+        progressContainer.classList.add('d-none');
     }
 }
